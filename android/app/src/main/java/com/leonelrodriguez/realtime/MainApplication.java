@@ -1,4 +1,4 @@
-package com.invertase.rnfirebasestarter;
+package com.leonelrodriguez.realtime;
 
 import android.support.multidex.MultiDexApplication;
 
