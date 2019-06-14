@@ -1,5 +1,6 @@
 import React from "react";
-import { StyleSheet, TextInput, Image, Text, View, Button } from "react-native";
+import { AsyncStorage } from "react-native";
+import { StyleSheet, TextInput, Alert, Text, View, Button } from "react-native";
 
 import firebase from "react-native-firebase";
 let database;
@@ -15,8 +16,102 @@ export default class App extends React.Component {
   }
 
   async componentDidMount() {
+    this.checkPermission();
+    this.createNotificationListeners();
     this.initializeDB();
   }
+  //##############NOTIFICATIONS
+  //1
+  checkPermission = async () => {
+    const enabled = await firebase.messaging().hasPermission();
+    if (enabled) {
+      this.getToken();
+    } else {
+      this.requestPermission();
+    }
+  };
+  //3
+  getToken = async () => {
+    let fcmToken = await AsyncStorage.getItem("fcmToken");
+    if (!fcmToken) {
+      fcmToken = await firebase.messaging().getToken();
+      if (fcmToken) {
+        // user has a device token
+        await AsyncStorage.setItem("fcmToken", fcmToken);
+      }
+    }
+  };
+
+  //2
+  requestPermission = async () => {
+    try {
+      await firebase.messaging().requestPermission();
+      // User has authorised
+      this.getToken();
+    } catch (error) {
+      // User has rejected permissions
+      console.log("permission rejected");
+    }
+  };
+  //Remove listeners allocated in createNotificationListeners()
+  componentWillUnmount = () => {
+    this.notificationListener();
+    this.notificationOpenedListener();
+  };
+
+  createNotificationListeners = async () => {
+    /*
+     * Triggered when a particular notification has been received in foreground
+     * */
+    this.notificationListener = firebase
+      .notifications()
+      .onNotification(notification => {
+        const { title, body } = notification;
+        this.showAlert(title, body);
+      });
+
+    /*
+     * If your app is in background, you can listen for when a notification is clicked / tapped / opened as follows:
+     * */
+    this.notificationOpenedListener = firebase
+      .notifications()
+      .onNotificationOpened(notificationOpen => {
+        debugger;
+        // const { title, body } = notificationOpen.notification;
+        // this.showAlert(title, body);
+        alert("Going to search screen for example");
+      });
+
+    /*
+     * If your app is closed, you can check if it was opened by a notification being clicked / tapped / opened as follows:
+     * */
+    const notificationOpen = await firebase
+      .notifications()
+      .getInitialNotification();
+    if (notificationOpen) {
+      debugger;
+      // const { title, body } = notificationOpen.notification;
+      // this.showAlert(title, body);
+      alert("Going to search screen for example");
+    }
+    /*
+     * Triggered for data only payload in foreground
+     * */
+    this.messageListener = firebase.messaging().onMessage(message => {
+      //process data message
+      console.log(JSON.stringify(message));
+    });
+  };
+
+  showAlert(title, body) {
+    Alert.alert(
+      title,
+      body,
+      [{ text: "OK", onPress: () => console.log("OK Pressed") }],
+      { cancelable: false }
+    );
+  }
+  //########FIREBASE DATABASE
   initializeDB = () => {
     database = firebase.database();
   };
