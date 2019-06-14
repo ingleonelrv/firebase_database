@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## React Native Firebase Starter<a href="https://invertase.io/oss/react-native-firebase"><img align="left" src="https://i.imgur.com/JIyBtKW.png" width="180px"></a>
 
 [![Backers on Open Collective](https://opencollective.com/react-native-firebase/backers/badge.svg)](#backers)
@@ -88,3 +89,7 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 ### License
 
 - See [LICENSE](/LICENSE)
+=======
+# firebase_database
+A simple react native app using real time database from firebase
+>>>>>>> e48b5b983420ca6dfecfad8ce79dd72ad5b63cf7
